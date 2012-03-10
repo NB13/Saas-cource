@@ -13,7 +13,8 @@ class String
 		if self.nil?
 			return true;
 		end
-		return (self.gsub(/\s/,'') =~ /#{reverse}/ix) != nil
+		words = self.gsub(/\W/,'')
+		return ( words =~ /#{words.reverse}/i) != nil
 	end
 end
 
@@ -34,7 +35,7 @@ class Numeric
 	def method_missing(method_id)
 		singular_currency = method_id.to_singular
 		if @@currencies.has_key?(singular_currency)
-			result = ( self * @@currencies[current_currency] ) / @@currencies[singular_currency]
+			result = self
 			result.current_currency = singular_currency
 			return result
 		else
@@ -43,11 +44,16 @@ class Numeric
 	end
   
 	def in(currency_name)
-		method_missing currency_name
+		singular_currency = currency_name.to_singular
+		result = ( self * @@currencies[current_currency] ) / @@currencies[singular_currency]
+		result.current_currency = singular_currency
+		return result
 	end
 end
 
 module Enumerable
 	def palindrome?
-		return entries.join.palindrome?
-end end
+		array = self.to_a	
+		return array.take(array.length/2) == array.reverse.take(array.length/2)
+	end
+end
